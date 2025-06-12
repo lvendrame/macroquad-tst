@@ -27,13 +27,13 @@ jobs:
 
       - name: Prepare Deployment Directory
         run: |
-          mkdir -p ./deploy
-          cp ./target/wasm32-unknown-unknown/release/my-game.wasm ./deploy/
+          mkdir -p ./deploy/assets
+          cp ./target/wasm32-unknown-unknown/release/macroquad-tst.wasm ./deploy/
           cp index.html ./deploy/
+          cp -r assets/ ./deploy/
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./deploy
-
