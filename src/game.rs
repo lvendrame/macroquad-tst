@@ -1,12 +1,12 @@
-use macroquad::{color::{self, *}, input::{is_key_down, is_key_pressed, KeyCode}, math::clamp, rand::{self, ChooseRandom}, text::{draw_text, measure_text}, time::get_frame_time, window::{screen_height, screen_width}};
+use macroquad::{color::*, input::{is_key_down, is_key_pressed, KeyCode}, rand::{self, ChooseRandom}, text::{draw_text, measure_text}, time::get_frame_time, window::{screen_height, screen_width}};
 
-use crate::{constants::*, game_state::GameState, particles::Particles, scores::Scores, shaders::{self, StarfieldShader}, shape::*};
+use crate::{constants::*, game_state::GameState, hero::Hero, particles::Particles, point_2d::Point2D, scores::Scores, shaders::{self, StarfieldShader}, shape::*};
 
 pub struct Game {
     pub game_state: GameState,
 
     pub lives: u32,
-    pub hero: Shape,
+    pub hero: Hero,
     pub enemies: Vec<Shape>,
     pub bullets: Vec<Shape>,
 
@@ -22,7 +22,7 @@ impl Default for Game {
         Self {
             game_state: GameState::MainMenu,
             lives: INITIAL_LIVES,
-            hero: Self::get_hero(),
+            hero: Hero::new(),
             enemies: Default::default(),
             bullets: Default::default(),
             scores: Scores::new(),
@@ -37,18 +37,6 @@ impl Game {
         Game::default()
     }
 
-    fn get_hero() -> Shape {
-        Shape {
-            shape_type: ShapeType::Circle,
-            size: 32.0,
-            speed: MOVEMENT_SPEED,
-            x: screen_width() / 2.0,
-            y: screen_height() / 2.0,
-            color: color::YELLOW,
-            collided: false,
-        }
-    }
-
     pub fn get_enemy() -> Shape {
         let size = rand::gen_range(16.0, 64.0);
         let half = size / 2.0;
@@ -57,8 +45,10 @@ impl Game {
             shape_type: ShapeType::Square,
             size,
             speed: rand::gen_range(50.0, 150.0),
-            x: rand::gen_range(half, screen_width() - half),
-            y: -size,
+            position: Point2D {
+                x: rand::gen_range(half, screen_width() - half),
+                y: -size,
+            },
             color: *COLORS.choose().unwrap(),
             collided: false,
         }
@@ -68,9 +58,8 @@ impl Game {
         Shape {
             shape_type: ShapeType::Square,
             size: 5.0,
-            speed: self.hero.speed * 2.0,
-            x: self.hero.x,
-            y: self.hero.y,
+            speed: self.hero.get_speed() * 2.0,
+            position: self.hero.get_position(),
             color: RED,
             collided: false,
         }
@@ -83,7 +72,7 @@ impl Game {
     pub fn restart(&mut self) {
         self.lives = INITIAL_LIVES;
         self.scores.score = 0;
-        self.hero = Self::get_hero();
+        self.hero.restart();
         self.enemies.clear();
         self.bullets.clear();
         self.particles.clear();
@@ -98,18 +87,18 @@ impl Game {
 
     fn update_enemies(&mut self, delta_time: f32) {
         for enemy in self.enemies.iter_mut() {
-            enemy.y += enemy.speed * delta_time;
+            enemy.position.y += enemy.speed * delta_time;
         }
 
-        self.enemies.retain(|enemy| enemy.y < screen_height() + enemy.size);
+        self.enemies.retain(|enemy| enemy.position.y < screen_height() + enemy.size);
     }
 
     fn update_bullets(&mut self, delta_time: f32) {
         for bullet in self.bullets.iter_mut() {
-            bullet.y -= bullet.speed * delta_time;
+            bullet.position.y -= bullet.speed * delta_time;
         }
 
-        self.bullets.retain(|bullet| bullet.y > 0.0 - bullet.size / 2.0);
+        self.bullets.retain(|bullet| bullet.position.y > 0.0 - bullet.size / 2.0);
     }
 
     fn update_playing(&mut self, delta_time: f32) {
@@ -120,23 +109,8 @@ impl Game {
     }
 
     fn check_playing_inputs(&mut self, delta_time: f32) {
-        let speed = self.hero.speed * delta_time;
-        let radius = self.hero.size / 2.0;
+        self.hero.check_inputs(delta_time, &mut self.shaders);
 
-        if is_key_down(KeyCode::Right) {
-            self.hero.x += speed;
-            self.shaders.inc_by(0.05 * delta_time);
-        }
-        if is_key_down(KeyCode::Left) {
-            self.hero.x -= speed;
-            self.shaders.dec_by(0.05 * delta_time);
-        }
-        if is_key_down(KeyCode::Down) {
-            self.hero.y += speed;
-        }
-        if is_key_down(KeyCode::Up) {
-            self.hero.y -= speed;
-        }
         if is_key_pressed(KeyCode::Space) {
             self.add_bullet();
         }
@@ -144,9 +118,6 @@ impl Game {
         if is_key_down(KeyCode::Escape) {
             self.game_state = GameState::Paused;
         }
-
-        self.hero.x = clamp(self.hero.x, radius, screen_width() - radius);
-        self.hero.y = clamp(self.hero.y, radius, screen_height() - radius);
     }
 
     fn check_hero_collisions(&mut self) -> bool {
@@ -172,7 +143,7 @@ impl Game {
                     enemy.collided = true;
 
                     self.scores.score += enemy.size.round() as u32;
-                    self.particles.create_explosion(enemy.x, enemy.y, enemy.size);
+                    self.particles.create_explosion(enemy.position.x, enemy.position.y, enemy.size);
                 }
             }
         }

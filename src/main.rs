@@ -1,10 +1,13 @@
+pub mod point_2d;
 pub mod shape;
 pub mod game_state;
 pub mod game;
+pub mod hero;
 pub mod constants;
 pub mod scores;
 pub mod shaders;
 pub mod particles;
+pub mod assets_config;
 
 use std::process::exit;
 

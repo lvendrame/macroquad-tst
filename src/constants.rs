@@ -8,4 +8,5 @@ pub const COLORS: [Color; 11] = [
     DARKBLUE, DARKGREEN,
 ];
 
+pub const ASSETS_PATH: &str = "assets";
 pub const HIGH_SCORE_FILE_PATH: &str = "high_score.dat";
