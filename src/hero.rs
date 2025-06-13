@@ -1,9 +1,23 @@
-use macroquad::{color::YELLOW, input::{is_key_down, KeyCode}, math::clamp, miniquad::native::apple::frameworks::Sel, window::{screen_height, screen_width}};
+use macroquad::{
+    color::{WHITE, YELLOW},
+    input::{is_key_down, KeyCode},
+    math::clamp,
+    prelude::animation::AnimatedSprite,
+    texture::{draw_texture_ex, DrawTextureParams},
+    window::{screen_height, screen_width}
+};
 
-use crate::{constants::MOVEMENT_SPEED, point_2d::Point2D, shaders::StarfieldShader, shape::{Shape, ShapeType}};
+use crate::{
+    assets_config::AssetsConfig,
+    constants::MOVEMENT_SPEED,
+    point_2d::Point2d,
+    shaders::StarfieldShader,
+    shape::{Shape, ShapeType}
+};
 
 pub struct Hero {
-    shape: Shape
+    shape: Shape,
+    sprite: AnimatedSprite,
 }
 
 impl Default for Hero {
@@ -17,6 +31,7 @@ impl Hero {
     pub fn new() -> Hero {
         Hero {
             shape: Self::create_shape(),
+            sprite: AssetsConfig::get_ship_sprite(),
         }
     }
 
@@ -25,7 +40,7 @@ impl Hero {
             shape_type: ShapeType::Circle,
             size: 32.0,
             speed: MOVEMENT_SPEED,
-            position: Point2D {
+            position: Point2d {
                 x: screen_width() / 2.0,
                 y: screen_height() / 2.0,
             },
@@ -34,12 +49,16 @@ impl Hero {
         }
     }
 
+    pub fn get_size(&self) -> f32 {
+        self.shape.size
+    }
+
     pub fn get_speed(&self) -> f32 {
         self.shape.speed
     }
 
-    pub fn get_position(&self) -> Point2D {
-        self.shape.position.clone()
+    pub fn get_position(&self) -> Point2d {
+        self.shape.position
     }
 
     pub fn restart(&mut self) {
@@ -54,13 +73,16 @@ impl Hero {
         let speed = self.shape.speed * delta_time;
         let radius = self.shape.size / 2.0;
 
+        self.sprite.set_animation(0);
         if is_key_down(KeyCode::Right) {
             self.shape.position.x += speed;
             shader.inc_by(0.05 * delta_time);
+            self.sprite.set_animation(2);
         }
         if is_key_down(KeyCode::Left) {
             self.shape.position.x -= speed;
             shader.dec_by(0.05 * delta_time);
+            self.sprite.set_animation(1);
         }
         if is_key_down(KeyCode::Down) {
             self.shape.position.y += speed;
@@ -69,13 +91,26 @@ impl Hero {
             self.shape.position.y -= speed;
         }
 
+        self.sprite.update();
+
         self.shape.position.x = clamp(self.shape.position.x, radius, screen_width() - radius);
         self.shape.position.y = clamp(self.shape.position.y, radius, screen_height() - radius);
 
     }
 
-    pub fn draw(&self) {
-        self.shape.draw();
+    pub fn draw(&self, assets_config: &AssetsConfig) {
+        let ship_frame = self.sprite.frame();
+        draw_texture_ex(
+            &assets_config.ship_texture,
+            self.shape.position.x - ship_frame.dest_size.x,
+            self.shape.position.y - ship_frame.dest_size.y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(ship_frame.dest_size * 2.0),
+                source: Some(ship_frame.source_rect),
+                ..Default::default()
+            },
+        );
     }
 
 }

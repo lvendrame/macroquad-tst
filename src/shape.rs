@@ -1,6 +1,6 @@
 use macroquad::{color::Color, math::Rect, shapes::{draw_circle, draw_rectangle}};
 
-use crate::point_2d::Point2D;
+use crate::point_2d::Point2d;
 
 #[derive(PartialEq)]
 pub enum ShapeType {
@@ -12,7 +12,7 @@ pub struct Shape {
     pub shape_type: ShapeType,
     pub size: f32,
     pub speed: f32,
-    pub position: Point2D,
+    pub position: Point2d,
     pub color: Color,
     pub collided: bool,
 }

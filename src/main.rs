@@ -1,8 +1,9 @@
 pub mod point_2d;
 pub mod shape;
+pub mod bullet;
+pub mod hero;
 pub mod game_state;
 pub mod game;
-pub mod hero;
 pub mod constants;
 pub mod scores;
 pub mod shaders;
@@ -73,7 +74,7 @@ fn draw_values(lives: u32, scores: &Scores) {
 
 #[macroquad::main("My game")]
 async fn main() {
-    let mut game = Game::new();
+    let mut game = Game::new().await;
 
     loop {
         clear_background(BLACK);

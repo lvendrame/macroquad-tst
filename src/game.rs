@@ -1,6 +1,6 @@
 use macroquad::{color::*, input::{is_key_down, is_key_pressed, KeyCode}, rand::{self, ChooseRandom}, text::{draw_text, measure_text}, time::get_frame_time, window::{screen_height, screen_width}};
 
-use crate::{constants::*, game_state::GameState, hero::Hero, particles::Particles, point_2d::Point2D, scores::Scores, shaders::{self, StarfieldShader}, shape::*};
+use crate::{assets_config::AssetsConfig, bullet::Bullet, constants::*, game_state::GameState, hero::Hero, particles::Particles, point_2d::Point2d, scores::Scores, shaders::{self, StarfieldShader}, shape::*};
 
 pub struct Game {
     pub game_state: GameState,
@@ -8,17 +8,19 @@ pub struct Game {
     pub lives: u32,
     pub hero: Hero,
     pub enemies: Vec<Shape>,
-    pub bullets: Vec<Shape>,
+    pub bullets: Vec<Bullet>,
 
     pub scores: Scores,
 
     pub shaders: StarfieldShader,
 
-    pub particles: Particles
+    pub particles: Particles,
+
+    pub assets_config: AssetsConfig,
 }
 
-impl Default for Game {
-    fn default() -> Self {
+impl Game {
+    pub async fn new() -> Self {
         Self {
             game_state: GameState::MainMenu,
             lives: INITIAL_LIVES,
@@ -27,14 +29,9 @@ impl Default for Game {
             bullets: Default::default(),
             scores: Scores::new(),
             shaders: shaders::StarfieldShader::default(),
-            particles: Particles::new()
+            particles: Particles::new(),
+            assets_config: AssetsConfig::new().await
         }
-    }
-}
-
-impl Game {
-    pub fn new() -> Self {
-        Game::default()
     }
 
     pub fn get_enemy() -> Shape {
@@ -45,7 +42,7 @@ impl Game {
             shape_type: ShapeType::Square,
             size,
             speed: rand::gen_range(50.0, 150.0),
-            position: Point2D {
+            position: Point2d {
                 x: rand::gen_range(half, screen_width() - half),
                 y: -size,
             },
@@ -54,19 +51,8 @@ impl Game {
         }
     }
 
-    fn get_bullet(&self) -> Shape {
-        Shape {
-            shape_type: ShapeType::Square,
-            size: 5.0,
-            speed: self.hero.get_speed() * 2.0,
-            position: self.hero.get_position(),
-            color: RED,
-            collided: false,
-        }
-    }
-
     fn add_bullet(&mut self) {
-        self.bullets.push(self.get_bullet());
+        self.bullets.push(Bullet::new(&self.hero));
     }
 
     pub fn restart(&mut self) {
@@ -95,10 +81,10 @@ impl Game {
 
     fn update_bullets(&mut self, delta_time: f32) {
         for bullet in self.bullets.iter_mut() {
-            bullet.position.y -= bullet.speed * delta_time;
+            bullet.update(delta_time);
         }
 
-        self.bullets.retain(|bullet| bullet.position.y > 0.0 - bullet.size / 2.0);
+        self.bullets.retain(|bullet| bullet.get_position().y > 0.0 - bullet.get_size() / 2.0);
     }
 
     fn update_playing(&mut self, delta_time: f32) {
@@ -139,7 +125,7 @@ impl Game {
         for bullet in self.bullets.iter_mut() {
             for enemy in self.enemies.iter_mut() {
                 if bullet.collides_with(&enemy) {
-                    bullet.collided = true;
+                    bullet.set_collided(true);
                     enemy.collided = true;
 
                     self.scores.score += enemy.size.round() as u32;
@@ -148,7 +134,7 @@ impl Game {
             }
         }
 
-        self.bullets.retain(|bullet| !bullet.collided);
+        self.bullets.retain(|bullet| !bullet.get_collided());
         self.enemies.retain(|enemy| !enemy.collided);
         self.particles.clean();
     }
@@ -175,14 +161,14 @@ impl Game {
 
     fn draw_bullets(&self) {
         for bullet in self.bullets.iter() {
-            bullet.draw();
+            bullet.draw(&self.assets_config);
         }
     }
 
     fn draw_playing(&mut self) {
         self.shaders.draw();
 
-        self.hero.draw();
+        self.hero.draw(&self.assets_config);
         self.draw_bullets();
         self.draw_enemies();
         self.particles.draw();

@@ -3,8 +3,8 @@ use macroquad::{file::set_pc_assets_folder, prelude::animation::{AnimatedSprite,
 use crate::constants::ASSETS_PATH;
 
 pub struct AssetsConfig {
-    ship_texture: Texture2D,
-    bullet_texture: Texture2D,
+    pub ship_texture: Texture2D,
+    pub bullet_texture: Texture2D,
 }
 
 
