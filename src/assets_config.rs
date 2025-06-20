@@ -5,6 +5,7 @@ use crate::constants::ASSETS_PATH;
 pub struct AssetsConfig {
     pub ship_texture: Texture2D,
     pub bullet_texture: Texture2D,
+    pub explosion_texture: Texture2D,
 }
 
 
@@ -14,10 +15,12 @@ impl AssetsConfig {
 
         let ship_texture = AssetsConfig::load_asset_texture("ship.png").await;
         let bullet_texture = AssetsConfig::load_asset_texture("laser-bolts.png").await;
+        let explosion_texture = AssetsConfig::load_asset_texture("explosion.png").await;
 
         let config = AssetsConfig {
             ship_texture,
             bullet_texture,
+            explosion_texture,
         };
 
         build_textures_atlas();

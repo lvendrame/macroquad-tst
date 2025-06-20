@@ -129,7 +129,7 @@ impl Game {
                     enemy.collided = true;
 
                     self.scores.score += enemy.size.round() as u32;
-                    self.particles.create_explosion(enemy.position.x, enemy.position.y, enemy.size);
+                    self.particles.create_explosion(enemy.position.x, enemy.position.y, enemy.size, &self.assets_config.explosion_texture);
                 }
             }
         }
