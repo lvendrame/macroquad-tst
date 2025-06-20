@@ -1,18 +1,14 @@
 use macroquad::{
     color::{WHITE, YELLOW},
     input::{is_key_down, KeyCode},
-    math::clamp,
+    math::{clamp, Vec2},
     prelude::animation::AnimatedSprite,
     texture::{draw_texture_ex, DrawTextureParams},
     window::{screen_height, screen_width}
 };
 
 use crate::{
-    assets_config::AssetsConfig,
-    constants::MOVEMENT_SPEED,
-    point_2d::Point2d,
-    shaders::StarfieldShader,
-    shape::{Shape, ShapeType}
+    assets_config::AssetsConfig, collidable::Collidable, constants::MOVEMENT_SPEED, shaders::StarfieldShader, shape::{Shape, ShapeType}
 };
 
 pub struct Hero {
@@ -23,6 +19,20 @@ pub struct Hero {
 impl Default for Hero {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl Collidable for Hero {
+    fn shape_type(&self) -> ShapeType {
+        self.shape.shape_type()
+    }
+
+    fn position(&self) -> Vec2 {
+        self.shape.position()
+    }
+
+    fn size(&self) -> f32 {
+        self.shape.size()
     }
 }
 
@@ -40,7 +50,7 @@ impl Hero {
             shape_type: ShapeType::Circle,
             size: 32.0,
             speed: MOVEMENT_SPEED,
-            position: Point2d {
+            position: Vec2 {
                 x: screen_width() / 2.0,
                 y: screen_height() / 2.0,
             },
@@ -49,24 +59,12 @@ impl Hero {
         }
     }
 
-    pub fn get_size(&self) -> f32 {
-        self.shape.size
-    }
-
     pub fn get_speed(&self) -> f32 {
         self.shape.speed
     }
 
-    pub fn get_position(&self) -> Point2d {
-        self.shape.position
-    }
-
     pub fn restart(&mut self) {
         self.shape = Self::create_shape();
-    }
-
-    pub fn collides_with(&self, other: &Shape) -> bool {
-        self.shape.collides_with(other)
     }
 
     pub fn check_inputs(&mut self, delta_time: f32, shader: &mut StarfieldShader) {

@@ -1,11 +1,26 @@
-use macroquad::{color::{RED, WHITE}, math::vec2, prelude::animation::AnimatedSprite, texture::{draw_texture_ex, DrawTextureParams}};
+use macroquad::{color::{RED, WHITE}, math::{vec2}, prelude::animation::AnimatedSprite, texture::{draw_texture_ex, DrawTextureParams}};
 
-use crate::{assets_config::AssetsConfig, hero::Hero, point_2d::Point2d, shape::{Shape, ShapeType}};
+use crate::{assets_config::AssetsConfig, collidable::Collidable, hero::Hero, shape::{Shape, ShapeType}};
 
-pub struct Bullet{
+pub struct Bullet {
     pub shape: Shape,
     sprite: AnimatedSprite,
 }
+
+impl Collidable for Bullet {
+    fn shape_type(&self) -> ShapeType {
+        self.shape.shape_type()
+    }
+
+    fn position(&self) -> macroquad::prelude::Vec2 {
+        self.shape.position()
+    }
+
+    fn size(&self) -> f32 {
+        self.shape.size()
+    }
+}
+
 impl Bullet {
 
     pub fn new(hero: &Hero) -> Self {
@@ -13,7 +28,7 @@ impl Bullet {
             shape_type: ShapeType::Square,
             size: 32.0,
             speed: hero.get_speed() * 2.,
-            position: hero.get_position(),
+            position: hero.position(),
             color: RED,
             collided: false,
         };
@@ -25,16 +40,8 @@ impl Bullet {
         }
     }
 
-    pub fn get_size(&self) -> f32 {
-        self.shape.size
-    }
-
     pub fn get_speed(&self) -> f32 {
         self.shape.speed
-    }
-
-    pub fn get_position(&self) -> Point2d {
-        self.shape.position
     }
 
     pub fn get_collided(&self) -> bool {
@@ -49,15 +56,10 @@ impl Bullet {
         self.shape.position.y -= self.shape.speed * delta_time;
     }
 
-    pub fn collides_with(&self, other: &Shape) -> bool {
-        self.shape.collides_with(other)
-    }
     pub fn draw(&self, assets_config: &AssetsConfig) {
-        // self.shape.draw();
-
         let bullet_frame = self.sprite.frame();
 
-        let size = self.get_size();
+        let size = self.size();
 
         draw_texture_ex(
             &assets_config.bullet_texture,

@@ -6,6 +6,9 @@ pub struct AssetsConfig {
     pub ship_texture: Texture2D,
     pub bullet_texture: Texture2D,
     pub explosion_texture: Texture2D,
+    pub enemy_small_texture: Texture2D,
+    pub enemy_medium_texture: Texture2D,
+    pub enemy_big_texture: Texture2D,
 }
 
 
@@ -16,11 +19,17 @@ impl AssetsConfig {
         let ship_texture = AssetsConfig::load_asset_texture("ship.png").await;
         let bullet_texture = AssetsConfig::load_asset_texture("laser-bolts.png").await;
         let explosion_texture = AssetsConfig::load_asset_texture("explosion.png").await;
+        let enemy_small_texture = AssetsConfig::load_asset_texture("enemy-small.png").await;
+        let enemy_medium_texture = AssetsConfig::load_asset_texture("enemy-medium.png").await;
+        let enemy_big_texture = AssetsConfig::load_asset_texture("enemy-big.png").await;
 
         let config = AssetsConfig {
             ship_texture,
             bullet_texture,
             explosion_texture,
+            enemy_small_texture,
+            enemy_medium_texture,
+            enemy_big_texture,
         };
 
         build_textures_atlas();
@@ -91,4 +100,53 @@ impl AssetsConfig {
             true,
         )
     }
+
+    pub fn get_enemy_small_sprite() -> AnimatedSprite {
+        AnimatedSprite::new(
+            17,
+            16,
+            &[
+                Animation {
+                    name: "enemy_small".to_string(),
+                    row: 0,
+                    frames: 2,
+                    fps: 12,
+                },
+            ],
+            true,
+        )
+    }
+
+    pub fn get_enemy_medium_sprite() -> AnimatedSprite {
+        AnimatedSprite::new(
+            32,
+            16,
+            &[
+                Animation {
+                    name: "enemy_medium".to_string(),
+                    row: 0,
+                    frames: 2,
+                    fps: 12,
+                },
+            ],
+            true,
+        )
+    }
+
+    pub fn get_enemy_big_sprite() -> AnimatedSprite {
+        AnimatedSprite::new(
+            32,
+            32,
+            &[
+                Animation {
+                    name: "enemy_big".to_string(),
+                    row: 0,
+                    frames: 2,
+                    fps: 12,
+                },
+            ],
+            true,
+        )
+    }
+
 }

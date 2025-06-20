@@ -1,5 +1,7 @@
-pub mod point_2d;
+pub mod collidable;
 pub mod shape;
+pub mod enemy;
+pub mod enemies;
 pub mod bullet;
 pub mod hero;
 pub mod game_state;
