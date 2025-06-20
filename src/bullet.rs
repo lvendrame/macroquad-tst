@@ -1,6 +1,6 @@
 use macroquad::{color::{RED, WHITE}, math::{vec2}, prelude::animation::AnimatedSprite, texture::{draw_texture_ex, DrawTextureParams}};
 
-use crate::{assets_config::AssetsConfig, collidable::Collidable, hero::Hero, shape::{Shape, ShapeType}};
+use crate::{sprites_config::SpritesConfig, collidable::Collidable, hero::Hero, shape::{Shape, ShapeType}};
 
 pub struct Bullet {
     pub shape: Shape,
@@ -36,7 +36,7 @@ impl Bullet {
 
         Bullet {
             shape,
-            sprite: AssetsConfig::get_bullet_sprite(),
+            sprite: SpritesConfig::get_bullet_sprite(),
         }
     }
 
@@ -56,13 +56,13 @@ impl Bullet {
         self.shape.position.y -= self.shape.speed * delta_time;
     }
 
-    pub fn draw(&self, assets_config: &AssetsConfig) {
+    pub fn draw(&self, sprites_config: &SpritesConfig) {
         let bullet_frame = self.sprite.frame();
 
         let size = self.size();
 
         draw_texture_ex(
-            &assets_config.bullet_texture,
+            &sprites_config.bullet_texture,
             self.shape.position.x - size / 2.0,
             self.shape.position.y - size / 2.0,
             WHITE,

@@ -1,6 +1,6 @@
 use macroquad::{prelude::animation::AnimatedSprite, rand, window::screen_height};
 
-use crate::{assets_config::AssetsConfig, collidable::Collidable, enemy::Enemy};
+use crate::{sprites_config::SpritesConfig, collidable::Collidable, enemy::Enemy};
 
 pub struct Enemies {
     list: Vec<Enemy>,
@@ -19,9 +19,9 @@ impl Enemies {
     pub fn new() -> Self {
         Enemies {
             list: Vec::new(),
-            sprite_small: AssetsConfig::get_enemy_small_sprite(),
-            sprite_medium: AssetsConfig::get_enemy_medium_sprite(),
-            sprite_big: AssetsConfig::get_enemy_big_sprite(),
+            sprite_small: SpritesConfig::get_enemy_small_sprite(),
+            sprite_medium: SpritesConfig::get_enemy_medium_sprite(),
+            sprite_big: SpritesConfig::get_enemy_big_sprite(),
         }
     }
 
@@ -62,7 +62,7 @@ impl Enemies {
         has_collision
     }
 
-    pub fn draw(&self, assets_config: &AssetsConfig) {
+    pub fn draw(&self, sprites_config: &SpritesConfig) {
         let small_frame = self.sprite_small.frame();
         let medium_frame = self.sprite_medium.frame();
         let big_frame = self.sprite_big.frame();
@@ -70,11 +70,11 @@ impl Enemies {
         for enemy in self.list.iter() {
             let size = enemy.size();
             if size < 32. {
-                enemy.draw(&assets_config.enemy_small_texture, &small_frame);
+                enemy.draw(&sprites_config.enemy_small_texture, &small_frame);
             } else if size < 48. {
-                enemy.draw(&assets_config.enemy_medium_texture, &medium_frame);
+                enemy.draw(&sprites_config.enemy_medium_texture, &medium_frame);
             } else {
-                enemy.draw(&assets_config.enemy_big_texture, &big_frame);
+                enemy.draw(&sprites_config.enemy_big_texture, &big_frame);
             }
         }
     }

@@ -10,7 +10,7 @@ pub mod constants;
 pub mod scores;
 pub mod shaders;
 pub mod particles;
-pub mod assets_config;
+pub mod sprites_config;
 
 use std::process::exit;
 

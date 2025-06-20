@@ -2,7 +2,7 @@ use macroquad::{file::set_pc_assets_folder, prelude::animation::{AnimatedSprite,
 
 use crate::constants::ASSETS_PATH;
 
-pub struct AssetsConfig {
+pub struct SpritesConfig {
     pub ship_texture: Texture2D,
     pub bullet_texture: Texture2D,
     pub explosion_texture: Texture2D,
@@ -12,18 +12,18 @@ pub struct AssetsConfig {
 }
 
 
-impl AssetsConfig {
-    pub async fn new() -> AssetsConfig {
+impl SpritesConfig {
+    pub async fn new() -> SpritesConfig {
         set_pc_assets_folder(ASSETS_PATH);
 
-        let ship_texture = AssetsConfig::load_asset_texture("ship.png").await;
-        let bullet_texture = AssetsConfig::load_asset_texture("laser-bolts.png").await;
-        let explosion_texture = AssetsConfig::load_asset_texture("explosion.png").await;
-        let enemy_small_texture = AssetsConfig::load_asset_texture("enemy-small.png").await;
-        let enemy_medium_texture = AssetsConfig::load_asset_texture("enemy-medium.png").await;
-        let enemy_big_texture = AssetsConfig::load_asset_texture("enemy-big.png").await;
+        let ship_texture = SpritesConfig::load_asset_texture("ship.png").await;
+        let bullet_texture = SpritesConfig::load_asset_texture("laser-bolts.png").await;
+        let explosion_texture = SpritesConfig::load_asset_texture("explosion.png").await;
+        let enemy_small_texture = SpritesConfig::load_asset_texture("enemy-small.png").await;
+        let enemy_medium_texture = SpritesConfig::load_asset_texture("enemy-medium.png").await;
+        let enemy_big_texture = SpritesConfig::load_asset_texture("enemy-big.png").await;
 
-        let config = AssetsConfig {
+        let config = SpritesConfig {
             ship_texture,
             bullet_texture,
             explosion_texture,

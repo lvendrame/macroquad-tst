@@ -8,7 +8,7 @@ use macroquad::{
 };
 
 use crate::{
-    assets_config::AssetsConfig, collidable::Collidable, constants::MOVEMENT_SPEED, shaders::StarfieldShader, shape::{Shape, ShapeType}
+    sprites_config::SpritesConfig, collidable::Collidable, constants::MOVEMENT_SPEED, shaders::StarfieldShader, shape::{Shape, ShapeType}
 };
 
 pub struct Hero {
@@ -41,7 +41,7 @@ impl Hero {
     pub fn new() -> Hero {
         Hero {
             shape: Self::create_shape(),
-            sprite: AssetsConfig::get_ship_sprite(),
+            sprite: SpritesConfig::get_ship_sprite(),
         }
     }
 
@@ -96,10 +96,10 @@ impl Hero {
 
     }
 
-    pub fn draw(&self, assets_config: &AssetsConfig) {
+    pub fn draw(&self, sprites_config: &SpritesConfig) {
         let ship_frame = self.sprite.frame();
         draw_texture_ex(
-            &assets_config.ship_texture,
+            &sprites_config.ship_texture,
             self.shape.position.x - ship_frame.dest_size.x,
             self.shape.position.y - ship_frame.dest_size.y,
             WHITE,

@@ -1,6 +1,6 @@
 use macroquad::{color::*, input::{is_key_down, is_key_pressed, KeyCode}, text::{draw_text, measure_text}, time::get_frame_time, window::{screen_height, screen_width}};
 
-use crate::{assets_config::AssetsConfig, bullet::Bullet, collidable::Collidable, constants::*, enemies::Enemies, game_state::GameState, hero::Hero, particles::Particles, scores::Scores, shaders::{self, StarfieldShader}};
+use crate::{sprites_config::SpritesConfig, bullet::Bullet, collidable::Collidable, constants::*, enemies::Enemies, game_state::GameState, hero::Hero, particles::Particles, scores::Scores, shaders::{self, StarfieldShader}};
 
 pub struct Game {
     pub game_state: GameState,
@@ -16,7 +16,7 @@ pub struct Game {
 
     pub particles: Particles,
 
-    pub assets_config: AssetsConfig,
+    pub sprites_config: SpritesConfig,
 }
 
 impl Game {
@@ -30,7 +30,7 @@ impl Game {
             scores: Scores::new(),
             shaders: shaders::StarfieldShader::default(),
             particles: Particles::new(),
-            assets_config: AssetsConfig::new().await,
+            sprites_config: SpritesConfig::new().await,
         }
     }
 
@@ -76,7 +76,7 @@ impl Game {
     fn check_hero_collisions(&mut self) -> bool {
         self.enemies.collides_with(&self.hero, |enemy| {
             self.scores.score += enemy.size().round() as u32;
-            self.particles.create_explosion(enemy.position().x, enemy.position().y, enemy.size(), &self.assets_config.explosion_texture);
+            self.particles.create_explosion(enemy.position().x, enemy.position().y, enemy.size(), &self.sprites_config.explosion_texture);
         })
     }
 
@@ -84,7 +84,7 @@ impl Game {
         for bullet in self.bullets.iter_mut() {
             if self.enemies.collides_with(bullet, |enemy| {
                 self.scores.score += enemy.size().round() as u32;
-                self.particles.create_explosion(enemy.position().x, enemy.position().y, enemy.size(), &self.assets_config.explosion_texture);
+                self.particles.create_explosion(enemy.position().x, enemy.position().y, enemy.size(), &self.sprites_config.explosion_texture);
             }) {
                 bullet.set_collided(true);
             };
@@ -110,16 +110,16 @@ impl Game {
 
     fn draw_bullets(&self) {
         for bullet in self.bullets.iter() {
-            bullet.draw(&self.assets_config);
+            bullet.draw(&self.sprites_config);
         }
     }
 
     fn draw_playing(&mut self) {
         self.shaders.draw();
 
-        self.hero.draw(&self.assets_config);
+        self.hero.draw(&self.sprites_config);
         self.draw_bullets();
-        self.enemies.draw(&self.assets_config);
+        self.enemies.draw(&self.sprites_config);
         self.particles.draw();
     }
 
