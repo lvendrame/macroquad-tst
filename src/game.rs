@@ -43,7 +43,7 @@ impl Game {
         self.scores.score = 0;
         self.hero.restart();
         self.enemies.clear();
-        self.bullets.clear();
+        self.bullets = Vec::new();
         self.particles.clear();
         self.game_state = GameState::Playing;
     }

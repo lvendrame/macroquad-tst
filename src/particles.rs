@@ -55,7 +55,7 @@ impl Particles {
     }
 
     pub fn clear(&mut self) {
-        self.explosions.clear();
+        self.explosions = Vec::new();
     }
 
     pub fn clean(&mut self) {

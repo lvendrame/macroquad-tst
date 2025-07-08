@@ -80,6 +80,6 @@ impl Enemies {
     }
 
     pub fn clear(&mut self) {
-        self.list.clear();
+        self.list = Vec::new();
     }
 }
