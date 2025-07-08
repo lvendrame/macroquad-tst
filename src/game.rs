@@ -1,6 +1,6 @@
 use macroquad::{color::*, input::{is_key_down, is_key_pressed, KeyCode}, text::{draw_text, measure_text}, time::get_frame_time, window::{screen_height, screen_width}};
 
-use crate::{sprites_config::SpritesConfig, bullet::Bullet, collidable::Collidable, constants::*, enemies::Enemies, game_state::GameState, hero::Hero, particles::Particles, scores::Scores, shaders::{self, StarfieldShader}};
+use crate::{bullet::Bullet, collidable::Collidable, constants::*, enemies::Enemies, game_state::GameState, hero::Hero, menu::Menu, particles::Particles, scores::Scores, shaders::{self, StarfieldShader}, sound_config::{self, SoundConfig}, sprites_config::SpritesConfig};
 
 pub struct Game {
     pub game_state: GameState,
@@ -17,10 +17,17 @@ pub struct Game {
     pub particles: Particles,
 
     pub sprites_config: SpritesConfig,
+
+    pub sound_config: SoundConfig,
 }
 
 impl Game {
     pub async fn new() -> Self {
+        let sound_config = SoundConfig::new().await;
+        sound_config.play_theme_music();
+
+        Menu::initialize().await;
+
         Self {
             game_state: GameState::MainMenu,
             lives: INITIAL_LIVES,
@@ -31,6 +38,7 @@ impl Game {
             shaders: shaders::StarfieldShader::default(),
             particles: Particles::new(),
             sprites_config: SpritesConfig::new().await,
+            sound_config,
         }
     }
 
@@ -66,6 +74,7 @@ impl Game {
 
         if is_key_pressed(KeyCode::Space) {
             self.add_bullet();
+            self.sound_config.play_sound_laser();
         }
 
         if is_key_down(KeyCode::Escape) {
@@ -77,6 +86,7 @@ impl Game {
         self.enemies.collides_with(&self.hero, |enemy| {
             self.scores.score += enemy.size().round() as u32;
             self.particles.create_explosion(enemy.position().x, enemy.position().y, enemy.size(), &self.sprites_config.explosion_texture);
+            self.sound_config.play_sound_explosion();
         })
     }
 
@@ -85,6 +95,7 @@ impl Game {
             if self.enemies.collides_with(bullet, |enemy| {
                 self.scores.score += enemy.size().round() as u32;
                 self.particles.create_explosion(enemy.position().x, enemy.position().y, enemy.size(), &self.sprites_config.explosion_texture);
+                self.sound_config.play_sound_explosion();
             }) {
                 bullet.set_collided(true);
             };
@@ -137,22 +148,26 @@ impl Game {
     }
 
     pub fn main_menu(&mut self) {
-        if is_key_pressed(KeyCode::Escape) {
-            std::process::exit(0);
-        }
-        if is_key_pressed(KeyCode::Enter) {
-            self.restart();
-        }
-
-        let text = "Press ENTER";
-        let text_dimensions = measure_text(text, None, 50, 1.0);
-        draw_text(
-            text,
-            screen_width() / 2.0 - text_dimensions.width / 2.0,
-            screen_height() / 2.0,
-            50.0,
-            WHITE,
+        Menu::main_menu(
+            || std::process::exit(0),
+            || self.restart()
         );
+        // if is_key_pressed(KeyCode::Escape) {
+        //     std::process::exit(0);
+        // }
+        // if is_key_pressed(KeyCode::Enter) {
+        //     self.restart();
+        // }
+
+        // let text = "Press ENTER";
+        // let text_dimensions = measure_text(text, None, 50, 1.0);
+        // draw_text(
+        //     text,
+        //     screen_width() / 2.0 - text_dimensions.width / 2.0,
+        //     screen_height() / 2.0,
+        //     50.0,
+        //     WHITE,
+        // );
 
     }
 

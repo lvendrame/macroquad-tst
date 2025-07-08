@@ -11,6 +11,8 @@ pub mod scores;
 pub mod shaders;
 pub mod particles;
 pub mod sprites_config;
+pub mod sound_config;
+pub mod menu;
 
 use std::process::exit;
 
